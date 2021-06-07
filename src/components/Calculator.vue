@@ -11,5 +11,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-
+  div {
+    display: none;
+  }
 </style>
