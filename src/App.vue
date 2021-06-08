@@ -1,8 +1,15 @@
-<template>
-  <section class="start">
-    <button class="start__button button button--big">Налоговый вычет</button>
+<template class="expand">
+  <section class="start" v-show="!modal">
+    <button 
+      class="start__button button"
+      @click="this.modal = true">
+      Налоговый вычет
+    </button>
   </section>
-  <Calculator /> 
+  <Calculator 
+    v-show="this.modal" 
+    @close="closeModal()"
+  /> 
 </template>
 
 <script>
@@ -12,6 +19,16 @@ export default {
   name: 'App',
   components: {
     Calculator
+  },
+  data() {
+    return{
+      modal: true,
+    }
+  },
+  methods: {
+    closeModal() {
+      this.modal = false;
+    }
   }
 }
 </script>
@@ -30,5 +47,16 @@ export default {
 
   background: $gradient-red;
   box-shadow: 0px -0.11px 16.9495px rgba(183, 187, 225, 0.33);
+}
+
+.start__button {
+  padding: 16px 32px;
+  @media screen and (max-width: 425px) {
+    padding: 12px 24px;
+  }
+}
+
+.expand {
+  min-height: 1000px;
 }
 </style>
