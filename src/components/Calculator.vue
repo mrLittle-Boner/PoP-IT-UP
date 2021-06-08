@@ -1,42 +1,37 @@
 <template>
-  <div class="modal" @click.self="$emit('close')">
+  <div class="modal" @click.self="$emit('close'), clearFrom()">
     <div class="content">
-      <button class="close"  @click="$emit('close')">
+      <button class="close"  @click="$emit('close'), clearFrom()">
         <img :src="closeButton" alt="close window">
       </button>
       <h3 class="title">Налоговый вычет</h3>
       <p class="descr">Используйте налоговый вычет чтобы погасить ипотеку досрочно. Размер налогового вычета составляет не более 13% от своего официального годового дохода.</p>
+      <form @submit.prevent="calculateTaxDeduction()">
+        <label class="salary"> Ваша зарплата в месяц
+          <input 
+            class="input" 
+            placeholder="Введите данные" 
+            type="number"
+            v-model="salary"
+          >
+        </label>
+        <button class="calculate" type="submit">Рассчитать</button>
+      </form>
 
-
-      <label class="salary"> Ваша зарплата в месяц
-        <input class="input" type="number">
-      </label>
-      <button 
-        class="calculate"
-        @click="calculatedResult = true"
-      >Рассчитать</button>
-
-      <div class="result" v-show="calculatedResult">
+      <div class="result" v-show="renderedDeduction.length > 0">
         <span class="result__text" >И того можете внести в качестве досрочных:</span>
-        <label class="result__item">
+        <label v-for="result,index in renderedDeduction"
+          :key="index"
+          class="result__item" 
+        >
           <input class="checkbox" type="checkbox">
           <span class="custom-check"></span>
-          <span class="result__payment">78 000 рублей <span class="result_year"> в 1-ый год</span></span>
-        </label>
-        <label class="result__item">
-          <input class="checkbox" type="checkbox">
-          <span class="custom-check"></span>
-          <span class="result__payment">78 000 рублей <span class="result_year"> в 2-ой год</span></span>
-        </label>
-        <label class="result__item">
-          <input class="checkbox" type="checkbox">
-          <span class="custom-check"></span>
-          <span class="result__payment">78 000 рублей <span class="result_year"> в 3-ий год</span></span>
-        </label>
-        <label class="result__item">
-          <input class="checkbox" type="checkbox">
-          <span class="custom-check"></span>
-          <span class="result__payment">78 000 рублей <span class="result_year"> в 4-ый год</span></span>
+          <span class="result__payment">
+            {{result}} рублей 
+            <span class="result_year">
+              в {{index + 1}}-{{computedPostfix(index+1)}} год
+            </span>
+          </span>
         </label>
       </div>
 
@@ -67,12 +62,50 @@ export default {
     return {
       calculatedResult: false,
       radioValue: 'payment',
-      closeButton: closeBtn 
+      closeButton: closeBtn,
+      salary: '',
+      renderedDeduction: []
     }
   },
-  computed: {
-    isChecked() {
-      return this.radioValue == this.value
+  methods: {
+    calculateTaxDeduction() {
+      let resultDeduction = [];
+      if( this.salary >= 12500) {
+        let taxDeduction = (this.salary*12)*0.13;
+        let maxAmount = 260000;
+
+        let iteration = Math.ceil(maxAmount/taxDeduction); 
+
+        for(let i = iteration; i > 0 ; i--) {
+          if(maxAmount > taxDeduction) {
+            resultDeduction.push(taxDeduction.toFixed(1));
+          }
+          if(maxAmount < taxDeduction) {
+            resultDeduction.push(maxAmount.toFixed(1));
+          }
+
+          maxAmount = maxAmount - taxDeduction
+        }
+        this.renderedDeduction = resultDeduction;
+        this.salary = '';
+      }
+    },
+    computedPostfix(num){
+      switch(num){
+        case 3:
+          return 'ий';
+        case 2:
+        case 6:
+        case 7:
+        case 8:
+          return 'ой';
+        default:
+          return 'ый';
+      }
+    },
+    clearFrom(){
+      this.salary = '';
+      this.renderedDeduction = [];
     }
   }
 }
@@ -226,6 +259,7 @@ export default {
 
   .checkbox:checked ~ .custom-check {
     background: $gradient-red;
+    border: none;
 
     &::after {
       content: '';
@@ -233,11 +267,11 @@ export default {
       border-bottom-color: #fff;
       border-left-color: #fff;
       position: absolute;
-      top: 3px;
+      top: 5px;
       left: 4px;
-      width: 11px;
-      height: 7px;
-      transform: rotate(-50deg);
+      width: 13px;
+      height: 6px;
+      transform: rotate(310deg);
     }
   }
 
@@ -291,8 +325,8 @@ export default {
       background: $gradient-red;
 
       &:hover {
-              color: #fff;
-      background: $gradient-red;
+        color: #fff;
+        background: $gradient-red;
       }
     }
   }
@@ -309,8 +343,6 @@ export default {
     color: #fff;
     background: $gradient-red;
   }
-    // color: #fff;
-    // background: $gradient-red;
 
   .addbtn {
     padding: 16px;

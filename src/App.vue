@@ -2,12 +2,12 @@
   <section class="start" v-show="!modal">
     <button 
       class="start__button button"
-      @click="this.modal = true">
+      @click="modal = true">
       Налоговый вычет
     </button>
   </section>
   <Calculator 
-    v-show="this.modal" 
+    v-show="modal" 
     @close="closeModal()"
   /> 
 </template>
@@ -22,7 +22,7 @@ export default {
   },
   data() {
     return{
-      modal: true,
+      modal: false,
     }
   },
   methods: {
@@ -56,7 +56,4 @@ export default {
   }
 }
 
-.expand {
-  min-height: 1000px;
-}
 </style>
